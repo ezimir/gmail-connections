@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+    <title> {% block title %}Gmail Connections{% endblock %} </title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Raleway:400,700">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/3.0.1/normalize.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/Ladda/0.9.4/ladda.min.css">
+
+    <link rel="stylesheet" href="{{ url_for("static", filename = "css/lib/skeleton.css") }}">
+    <link rel="stylesheet" href="{{ url_for("static", filename = "css/style.css") }}">
+
+    <script src="{{ url_for("static", filename = "js/script.js") }}"></script>
+</head>
+<body>
+    <header>
+        <h1> Gmail Connections </h1>
+    </header>
+
+    <div class="container">
+        <article class="row">
+            {% if not user %}
+                <div class="twelve columns text-center">
+                    <h5> We need your GMail credentials: </h5>
+                    <p>
+                        <a href="{{ url_for("home") }}" class="ladda-button" data-color="mint" data-size="xs"> Log In </a>
+                    </p>
+                </div>
+            {% else %}
+                <div class="three columns">
+                    <menu>
+                        {% for url_name, link_title in menu %}
+                            <li><a href="{{ url_for(url_name) }}" class="ladda-button" data-color="mint" data-size="xs"> {{ link_title }} </a></li>
+                        {% endfor %}
+                    </menu>
+                </div>
+
+                <div class="nine columns">
+                    <article class="row">
+                        <div class="twelve columns">
+                            {% block content %}{% endblock %}
+                        </div>
+                    </article>
+                </div>
+            {% endif %}
+        </article>
+    </div>
+</body>
+</html>

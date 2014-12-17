@@ -1,0 +1,63 @@
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body:not(.loaded) * {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -ms-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
+
+.text-center {
+    text-align: center
+}
+
+
+h1 {
+    padding: .4rem 0;
+
+    background-color: #222;
+    color: #fff;
+
+    text-align: center;
+}
+
+menu {
+    margin: 0;
+    padding-left: 0;
+
+    list-style: none;
+}
+    menu li {
+        float: left;
+    }
+
+    @media (min-width: 550px) {
+        menu {
+            border-right: 1px solid #ccc;
+        }
+            menu li {
+                float: none;
+            }
+    }
+
+a.ladda-button {
+    margin-right: .3rem;
+
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+    a.ladda-button:hover {
+        color: #000;
+    }
+
+    @media (min-width: 700px) {
+        a.ladda-button {
+            font-size: 1.8rem;
+        }
+    }
+
