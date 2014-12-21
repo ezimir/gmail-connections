@@ -51,6 +51,9 @@ def load_user(userid):
 @app.before_request
 def before_request():
     if not current_user.is_authenticated():
+        if request.endpoint == 'bookmarks':
+            return redirect(url_for('home'))
+
         g.auth_flow = OAuth2WebServerFlow(
             client_id = config.GMAIL_CLIENT_ID,
             client_secret = config.GMAIL_CLIENT_SECRET,
