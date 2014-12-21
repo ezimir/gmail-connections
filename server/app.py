@@ -4,7 +4,7 @@
 
 # functions
 from flask import g, request, render_template, redirect, url_for
-from flask.ext.login import login_user, logout_user
+from flask.ext.login import login_user, logout_user, current_user
 
 from apiclient.discovery import build
 
@@ -13,7 +13,7 @@ from flask import Flask
 from flask.ext.login import LoginManager
 
 import httplib2
-from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OAuth2WebServerFlow, AccessTokenCredentials
 
 from models import db, User
 
@@ -32,18 +32,29 @@ login_manager.init_app(app)
 
 
 
+def get_api(credentials):
+    http_auth = credentials.authorize(httplib2.Http())
+    return build('gmail', 'v1', http = http_auth)
+
+
+
 @login_manager.user_loader
 def load_user(userid):
     return User.query.get(int(userid))
 
 @app.before_request
 def before_request():
-    g.auth_flow = OAuth2WebServerFlow(
-        client_id = config.GMAIL_CLIENT_ID,
-        client_secret = config.GMAIL_CLIENT_SECRET,
-        scope = config.GMAIL_AUTH_SCOPE,
-        redirect_uri = url_for('login_callback', _external = True)
-    )
+    if not current_user.is_authenticated():
+        g.auth_flow = OAuth2WebServerFlow(
+            client_id = config.GMAIL_CLIENT_ID,
+            client_secret = config.GMAIL_CLIENT_SECRET,
+            scope = config.GMAIL_AUTH_SCOPE,
+            redirect_uri = url_for('login_callback', _external = True)
+        )
+
+    else:
+        credentials = AccessTokenCredentials(current_user.access_token, u'')
+        g.gmail_api = get_api(credentials)
 
 
 @app.context_processor
@@ -68,9 +79,8 @@ def login():
 def login_callback():
     code = request.args.get('code')
     credentials = g.auth_flow.step2_exchange(code)
-    http_auth = credentials.authorize(httplib2.Http())
-    api = build('gmail', 'v1', http = http_auth)
-    gmail_user = api.users().getProfile(userId = 'me').execute()
+    gmail_api = get_api(credentials)
+    gmail_user = gmail_api.users().getProfile(userId = 'me').execute()
 
     email = gmail_user['emailAddress']
     access_token = credentials.access_token
