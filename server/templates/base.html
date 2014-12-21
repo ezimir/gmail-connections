@@ -42,6 +42,16 @@
                         <div class="twelve columns">
                             <p> You are authenticated as <strong>{{ current_user.email }}</strong>. </p>
 
+                            {% with messages = get_flashed_messages(with_categories = True) %}
+                                {% if messages %}
+                                    <ul class="flashes">
+                                        {% for category, message in messages %}
+                                            <li class="{{ category }}">{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endwith %}
+
                             {% block content %}{% endblock %}
                         </div>
                     </article>

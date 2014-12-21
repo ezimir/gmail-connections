@@ -45,18 +45,32 @@ menu {
             }
     }
 
-a.ladda-button {
+
+.flashes {
+    font-size: 1.5em;
+    list-style: none;
+}
+    .flashes li {
+        border-radius: 2px;
+        padding: 0 1rem;
+    }
+        .flashes .success {
+            background: #d7fad0;
+        }
+
+
+.ladda-button {
     margin-right: .3rem;
 
     font-size: 1.5rem;
     text-decoration: none;
 }
-    a.ladda-button:hover {
+    .ladda-button:hover {
         color: #000;
     }
 
     @media (min-width: 700px) {
-        a.ladda-button {
+        .ladda-button {
             font-size: 1.8rem;
         }
     }
