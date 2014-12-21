@@ -7,10 +7,14 @@ from flask import render_template
 
 # objects
 from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
 
 
 
 app = Flask(__name__)
+app.config.from_pyfile('config.py')
+
+db = SQLAlchemy(app)
 
 
 
@@ -35,6 +39,7 @@ def inject_menu():
 @app.route('/')
 def home():
     return render_template('home.html')
+
 
 
 # dev server
