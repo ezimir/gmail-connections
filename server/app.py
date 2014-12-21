@@ -4,7 +4,7 @@
 
 # functions
 from flask import render_template, redirect, url_for
-from flask.ext.login import login_user, logout_user, current_user
+from flask.ext.login import login_user, logout_user
 
 # objects
 from flask import Flask
@@ -30,13 +30,6 @@ def load_user(userid):
     return User.query.get(int(userid))
 
 
-
-@app.context_processor
-def inject_user():
-
-    return {
-        'user': current_user,
-    }
 
 @app.context_processor
 def inject_menu():

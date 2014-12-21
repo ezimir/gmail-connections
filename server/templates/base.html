@@ -21,7 +21,7 @@
 
     <div class="container">
         <article class="row">
-            {% if not user.is_authenticated() %}
+            {% if not current_user.is_authenticated() %}
                 <div class="twelve columns text-center">
                     <h5> We need your GMail credentials: </h5>
                     <p>
@@ -40,7 +40,7 @@
                 <div class="nine columns">
                     <article class="row">
                         <div class="twelve columns">
-                            <p> You are authenticated as <strong>{{ user.email }}</strong>. </p>
+                            <p> You are authenticated as <strong>{{ current_user.email }}</strong>. </p>
 
                             {% block content %}{% endblock %}
                         </div>
