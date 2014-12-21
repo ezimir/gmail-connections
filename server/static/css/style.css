@@ -84,3 +84,19 @@ menu {
         border-color: #a01616;
     }
 
+
+form > label {
+    margin-bottom: 1.5rem;
+
+    border-bottom: 1px solid #ccc;
+}
+
+input[type=checkbox] {
+    margin-bottom: 0;
+}
+
+form .input {
+    margin-bottom: 1.5rem;
+    padding: 6px 0;
+}
+

@@ -17,8 +17,9 @@ from oauth2client.client import OAuth2WebServerFlow, AccessTokenCredentials
 
 from flask_wtf import Form
 from flask_wtf.html5 import EmailField
-from wtforms import SubmitField
+from wtforms import SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired, Email
+from wtforms.widgets import CheckboxInput, ListWidget
 
 from models import db, User, Bookmark
 
@@ -110,12 +111,12 @@ def logout():
     return redirect(url_for('home'))
 
 
-class BookmarkForm(Form):
+class AddBookmarkForm(Form):
     bookmark = EmailField('New Bookmark', validators = [DataRequired(), Email()])
     submit = SubmitField('Add')
 
     def validate(self):
-        is_valid = super(BookmarkForm, self).validate()
+        is_valid = super(AddBookmarkForm, self).validate()
         if not is_valid:
             return False
 
@@ -126,18 +127,56 @@ class BookmarkForm(Form):
 
         return True
 
+class RemoveBookmarkForm(Form):
+    bookmarks = SelectMultipleField('Remove Bookmarks', option_widget = CheckboxInput(), widget = ListWidget(prefix_label = False))
+    submit = SubmitField('Remove')
+
+    def __init__(self, *args, **kwargs):
+        super(RemoveBookmarkForm, self).__init__(*args, **kwargs)
+
+        bookmarks = current_user.bookmarks.order_by('email')
+        choices = [bookmark.email for bookmark in bookmarks]
+        self.bookmarks.choices = zip(choices, choices)
+
+    def validate(self):
+        is_valid = super(RemoveBookmarkForm, self).validate()
+        if not is_valid:
+            return False
+
+        if not self.bookmarks.data:
+            self.bookmarks.errors.append(u'Nothing selected.')
+            return False
+
+        return True
+
 @app.route('/bookmarks/', methods = ['GET', 'POST'])
 def bookmarks():
-    form = BookmarkForm()
-    if form.validate_on_submit():
-        bookmark = Bookmark(current_user, form.bookmark.data)
-        db.session.add(bookmark)
-        db.session.commit()
-        flash('Saved.', 'success')
+    form_add = AddBookmarkForm()
+    form_remove = RemoveBookmarkForm()
 
-        return redirect(url_for('bookmarks'))
+    action = request.form.get('submit', '').lower()
 
-    return render_template('bookmarks.html', form = form)
+    if action == 'add':
+        if form_add.validate_on_submit():
+            bookmark = Bookmark(current_user, form_add.bookmark.data)
+            db.session.add(bookmark)
+            db.session.commit()
+            flash('Saved.', 'success')
+
+            return redirect(url_for('bookmarks'))
+
+    elif action == 'remove':
+        if form_remove.validate_on_submit():
+            for email in form_remove.bookmarks.data:
+                bookmark = current_user.bookmarks.filter_by(email = email).first()
+                db.session.delete(bookmark)
+
+            db.session.commit()
+            flash('Removed.', 'success')
+
+            return redirect(url_for('bookmarks'))
+
+    return render_template('bookmarks.html', form_add = form_add, form_remove = form_remove)
 
 
 @app.route('/')

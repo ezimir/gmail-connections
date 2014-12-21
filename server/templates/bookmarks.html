@@ -2,7 +2,11 @@
 
 
 {% macro render_field(field) %}
-    <label> {{ field.label }} </label>
+    {% if field.choices %}
+        <label> {{ field.label.text }} </label>
+    {% else %}
+        {{ field.label }}
+    {% endif %}
 
     {% if field.errors %}
         <div class="errors">
@@ -12,10 +16,18 @@
         </div>
     {% endif %}
 
-    {% if field.flags.required %}
-        {{ field(required = "required", **kwargs)|safe }}
+    {% if field.choices %}
+        <div class="input">
+            {% for option in field %}
+                <label> {{ option }} {{ option.label.text }} </label>
+            {% endfor %}
+        </div>
     {% else %}
-        {{ field(**kwargs)|safe }}
+        {% if field.flags.required %}
+            {{ field(required = "required", **kwargs)|safe }}
+        {% else %}
+            {{ field(**kwargs)|safe }}
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
@@ -23,12 +35,19 @@
 {% block content %}
     <div class="row">
         <form action="{{ url_for("bookmarks") }}" method="POST" class="six columns" autocomplete="off">
-            {{ form.csrf_token }}
+            {{ form_add.csrf_token }}
 
-            {{ form.bookmark.required }}
-            {{ render_field(form.bookmark, placeholder = "friend@gmail.com", class = "u-full-width") }}
+            {{ render_field(form_add.bookmark, placeholder = "friend@gmail.com", class = "u-full-width") }}
 
-            {{ form.submit }}
+            {{ form_add.submit }}
+        </form>
+
+        <form action="{{ url_for("bookmarks") }}" method="POST" class="six columns" autocomplete="off">
+            {{ form_remove.csrf_token }}
+
+            {{ render_field(form_remove.bookmarks) }}
+
+            {{ form_remove.submit }}
         </form>
     </div>
 {% endblock %}
