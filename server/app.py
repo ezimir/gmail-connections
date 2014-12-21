@@ -20,7 +20,7 @@ from flask_wtf.html5 import EmailField
 from wtforms import SubmitField
 from wtforms.validators import DataRequired, Email
 
-from models import db, User
+from models import db, User, Bookmark
 
 # constants
 import config
@@ -114,11 +114,27 @@ class BookmarkForm(Form):
     bookmark = EmailField('New Bookmark', validators = [DataRequired(), Email()])
     submit = SubmitField('Add')
 
+    def validate(self):
+        is_valid = super(BookmarkForm, self).validate()
+        if not is_valid:
+            return False
+
+        bookmark = current_user.bookmarks.filter_by(email = self.bookmark.data).first()
+        if bookmark:
+            self.bookmark.errors.append(u'Already registered.')
+            return False
+
+        return True
+
 @app.route('/bookmarks/', methods = ['GET', 'POST'])
 def bookmarks():
     form = BookmarkForm()
     if form.validate_on_submit():
+        bookmark = Bookmark(current_user, form.bookmark.data)
+        db.session.add(bookmark)
+        db.session.commit()
         flash('Saved.', 'success')
+
         return redirect(url_for('bookmarks'))
 
     return render_template('bookmarks.html', form = form)
