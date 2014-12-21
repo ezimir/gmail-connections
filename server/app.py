@@ -37,7 +37,7 @@ def load_user(userid):
     return User.query.get(int(userid))
 
 @app.before_request
-def auth_flow():
+def before_request():
     g.auth_flow = OAuth2WebServerFlow(
         client_id = config.GMAIL_CLIENT_ID,
         client_secret = config.GMAIL_CLIENT_SECRET,
@@ -84,7 +84,7 @@ def login_callback():
         db.session.add(user)
 
     db.session.commit()
-    login_user(user)
+    login_user(user, remember = True)
 
     return redirect(url_for('home'))
 
