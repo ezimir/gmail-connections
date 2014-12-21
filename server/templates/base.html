@@ -21,11 +21,11 @@
 
     <div class="container">
         <article class="row">
-            {% if not user %}
+            {% if not user.is_authenticated() %}
                 <div class="twelve columns text-center">
                     <h5> We need your GMail credentials: </h5>
                     <p>
-                        <a href="{{ url_for("home") }}" class="ladda-button" data-color="mint" data-size="xs"> Log In </a>
+                        <a href="{{ url_for("login") }}" class="ladda-button" data-color="mint" data-size="xs"> Log In </a>
                     </p>
                 </div>
             {% else %}
@@ -40,6 +40,8 @@
                 <div class="nine columns">
                     <article class="row">
                         <div class="twelve columns">
+                            <p> You are authenticated as <strong>{{ user.email }}</strong>. </p>
+
                             {% block content %}{% endblock %}
                         </div>
                     </article>
