@@ -75,3 +75,12 @@ menu {
         }
     }
 
+
+.errors {
+    color: #a01616;
+    font-size: 1.3rem;
+}
+    .errors + input {
+        border-color: #a01616;
+    }
+

@@ -3,7 +3,7 @@
 
 
 # functions
-from flask import g, request, render_template, redirect, url_for
+from flask import g, request, render_template, redirect, url_for, flash
 from flask.ext.login import login_user, logout_user, current_user
 
 from apiclient.discovery import build
@@ -14,6 +14,11 @@ from flask.ext.login import LoginManager
 
 import httplib2
 from oauth2client.client import OAuth2WebServerFlow, AccessTokenCredentials
+
+from flask_wtf import Form
+from flask_wtf.html5 import EmailField
+from wtforms import SubmitField
+from wtforms.validators import DataRequired, Email
 
 from models import db, User
 
@@ -62,7 +67,7 @@ def inject_menu():
     return {
         'menu': [
             ('home', 'Home'),
-            ('home', 'Bookmarks'),
+            ('bookmarks', 'Bookmarks'),
             ('home', 'View Data'),
             ('logout', 'Logout'),
         ],
@@ -103,6 +108,21 @@ def login_callback():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+
+class BookmarkForm(Form):
+    bookmark = EmailField('New Bookmark', validators = [DataRequired(), Email()])
+    submit = SubmitField('Add')
+
+@app.route('/bookmarks/', methods = ['GET', 'POST'])
+def bookmarks():
+    form = BookmarkForm()
+    if form.validate_on_submit():
+        flash('Saved.', 'success')
+        return redirect(url_for('bookmarks'))
+
+    return render_template('bookmarks.html', form = form)
+
 
 @app.route('/')
 def home():
