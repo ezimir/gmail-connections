@@ -9,6 +9,8 @@ from flask.ext.login import login_user, logout_user, current_user
 from apiclient.discovery import build
 
 # objects
+import newrelic.agent
+
 from flask import Flask
 from flask.ext.login import LoginManager
 
@@ -27,6 +29,8 @@ from models import db, User, Bookmark
 import config
 
 
+
+newrelic.agent.initialize()
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -184,6 +188,7 @@ def bookmarks():
 
 @app.route('/keep-alive')
 def keep_alive():
+    newrelic.agent.ignore_transaction(flag = True)
     return 'OK'
 
 
