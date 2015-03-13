@@ -182,6 +182,11 @@ def bookmarks():
     return render_template('bookmarks.html', form_add = form_add, form_remove = form_remove)
 
 
+@app.route('/keep-alive')
+def keep_alive():
+    return 'OK'
+
+
 @app.route('/')
 def home():
     return render_template('home.html')
