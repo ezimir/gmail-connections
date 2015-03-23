@@ -43,6 +43,7 @@ login_manager.init_app(app)
 
 
 def get_api(credentials):
+    print u'Creating GMail Auth object.'
     http_auth = credentials.authorize(httplib2.Http())
     return build('gmail', 'v1', http = http_auth)
 
@@ -50,14 +51,19 @@ def get_api(credentials):
 
 @login_manager.user_loader
 def load_user(userid):
+    print u'Loading user #{}.'.format(userid)
     return User.query.get(int(userid))
 
 @app.before_request
 def before_request():
+    print u'Before request.'
     if not current_user.is_authenticated():
+        print u'Not authorized.'
         if request.endpoint == 'bookmarks':
+            print u'Redirecting.'
             return redirect(url_for('home'))
 
+        print u'Creating OAuth object.'
         g.auth_flow = OAuth2WebServerFlow(
             client_id = config.GMAIL_CLIENT_ID,
             client_secret = config.GMAIL_CLIENT_SECRET,
@@ -66,12 +72,14 @@ def before_request():
         )
 
     else:
+        print u'Getting credentials from token.'
         credentials = AccessTokenCredentials(current_user.access_token, u'')
         g.gmail_api = get_api(credentials)
 
 
 @app.context_processor
 def inject_menu():
+    print u'Injecting menu.'
     return {
         'menu': [
             ('home', 'Home'),
@@ -85,11 +93,13 @@ def inject_menu():
 
 @app.route('/login/')
 def login():
+    print u'Login.'
     auth_uri = g.auth_flow.step1_get_authorize_url()
     return redirect(auth_uri)
 
 @app.route('/login/callback/')
 def login_callback():
+    print u'Login callback.'
     code = request.args.get('code')
     credentials = g.auth_flow.step2_exchange(code)
     gmail_api = get_api(credentials)
@@ -100,9 +110,11 @@ def login_callback():
 
     user = User.query.filter_by(email = email).first()
     if user:
+        print u'Existing user.'
         user.access_token = access_token
 
     else:
+        print u'New user.'
         user = User(email, access_token)
         db.session.add(user)
 
@@ -114,6 +126,7 @@ def login_callback():
 
 @app.route('/logout/')
 def logout():
+    print u'Logout.'
     logout_user()
     return redirect(url_for('home'))
 
@@ -158,13 +171,16 @@ class RemoveBookmarkForm(Form):
 
 @app.route('/bookmarks/', methods = ['GET', 'POST'])
 def bookmarks():
+    print u'Bookmarks.'
     form_add = AddBookmarkForm()
     form_remove = RemoveBookmarkForm()
 
     action = request.form.get('submit', '').lower()
 
     if action == 'add':
+        print u'Adding.'
         if form_add.validate_on_submit():
+            print u'Valid.'
             bookmark = Bookmark(current_user, form_add.bookmark.data)
             db.session.add(bookmark)
             db.session.commit()
@@ -173,7 +189,9 @@ def bookmarks():
             return redirect(url_for('bookmarks'))
 
     elif action == 'remove':
+        print u'Removing.'
         if form_remove.validate_on_submit():
+            print u'Valid.'
             for email in form_remove.bookmarks.data:
                 bookmark = current_user.bookmarks.filter_by(email = email).first()
                 db.session.delete(bookmark)
