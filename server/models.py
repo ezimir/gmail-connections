@@ -14,6 +14,8 @@ db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
 
+    __tablename__ = 'gc-users'
+
     id = db.Column(db.Integer, primary_key = True)
     email = db.Column(db.String(128), unique = True)
     access_token = db.Column(db.String(255))
@@ -29,8 +31,10 @@ class User(UserMixin, db.Model):
 
 class Bookmark(db.Model):
 
+    __tablename__ = 'gc-bookmarks'
+
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('{}.id'.format(User.__tablename__)))
     email = db.Column(db.String(128))
 
     def __init__(self, user, email):
